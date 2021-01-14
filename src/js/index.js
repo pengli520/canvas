@@ -87,6 +87,7 @@ const clearUrl = (list) => {
   for (let i of list) {
     window.URL.revokeObjectURL(i)
   }
+  console.log('清除')
 }
 
 // 开始表演
@@ -126,7 +127,7 @@ const draw = (ctxCopy,data) => {
       if (isOver >= data.length) {
         console.timeEnd()
         console.log('结束', data, '帧')
-        GIF(tempFiles)
+        GIF(tempFiles,canvasCopy.width, canvasCopy.height, clearUrl)
         return cancelAnimationFrame(RAF)
       }          
     }
@@ -193,7 +194,7 @@ const getImgData = (ctx, canvas) => {
   let info = []
 
   // 跨几倍像素
-  const multiple = 5
+  const multiple = 20
   // p1 随机数
   const p1Random = 2 || Math.random()
   for (let i = 0; i < length * 4; i += 4 * multiple) {
@@ -239,7 +240,7 @@ const getImgData = (ctx, canvas) => {
 
 const { canvas, ctx } = initCanvas({style: "opacity:0"});
 const { canvas: canvasCopy, ctx:ctxCopy } = initCanvas();
-const { canvas: canvasGif, ctx:ctxGif } = initCanvas();
+const { canvas: canvasGif, ctx:ctxGif } = initCanvas({style: "opacity:0"});
 const img = createEl('img', { src: './img/1.jpg' })
 // 临时lob文件
 const tempFiles = []

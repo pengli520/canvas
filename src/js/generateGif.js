@@ -7,13 +7,13 @@
  * @FilePath: \canvas\src\js\generateGif.js
  */
 
-const GIF = (imgList) => {
+const GIF = (imgList, w, h, callbacl) => {
     return gifshot.createGIF({
-        gifWidth: 200,
-        gifHeight: 200,
+        gifWidth: w,
+        gifHeight: h,
         images: imgList || ['./img/1.png', './img/2.png', './img/3.png'],
-        interval: 0.1,
-        numFrames: 10,
+        interval: 0.02,
+        numFrames: 1,
         frameDuration: 1,
         fontWeight: 'normal',
         fontSize: '16px',
@@ -21,7 +21,7 @@ const GIF = (imgList) => {
         fontColor: '#ffffff',
         textAlign: 'center',
         textBaseline: 'bottom',
-        sampleInterval: 10,
+        sampleInterval: 100,
         numWorkers: 2
     }, function (obj) {
         if (!obj.error) {
@@ -29,6 +29,7 @@ const GIF = (imgList) => {
                 animatedImage = document.createElement('img');
             animatedImage.src = image;
             document.body.appendChild(animatedImage);
+            callbacl(imgList)
         }
     });
 }
