@@ -6,6 +6,7 @@
  * @Description: In User Settings Edit
  * @FilePath: \canvas\src\js\index.js
  */
+import { GIF } from './generateGif.js'
 console.time()
 const createEl = (tag, props) => {
   const el = document.createElement(tag)
@@ -37,6 +38,7 @@ const creatImageData = (ctx,width=img.width,height=img.height) => {
 // 把像素点画在画布上
 const putColorData = (ctx, data) => {
   ctx.putImageData(data, 0, 0);
+  return canvasGif.toDataURL('image/jpg');
 }
 
 // 写文本
@@ -80,6 +82,13 @@ const drawRound = (ctx, rgba, item, r) => {
   ctx.fill()
 }
 
+// 释放文件
+const clearUrl = (list) => {
+  for (let i of list) {
+    window.URL.revokeObjectURL(i)
+  }
+}
+
 // 开始表演
 const draw = (ctxCopy,data) => {
   // 圆半径，正方形宽高
@@ -116,17 +125,18 @@ const draw = (ctxCopy,data) => {
       // 所以粒子都执行完成
       if (isOver >= data.length) {
         console.timeEnd()
-        putColorData(ctxGif, frames[200])
-        let file = new Blob(frames[200], { type: 'png' })     
-        console.log(file)
-        let url = window.URL.createObjectURL(file) 
-        console.log('结束', data, '帧', frames, url)
-
+        console.log('结束', data, '帧')
+        GIF(tempFiles)
         return cancelAnimationFrame(RAF)
       }          
     }
     // 获取数据
-    frames.push(getImageData(ctxCopy, canvasCopy))
+    let frame = getImageData(ctxCopy, canvasCopy)
+    const base64 =  putColorData(ctxGif, frame)
+    const file =  base64ToBolb(base64)
+    let src = window.URL.createObjectURL(file) 
+    tempFiles.push(src)
+    // addBody(createEl('img', {src}))    
     RAF = requestAnimationFrame(dong)
     
   }
@@ -231,8 +241,9 @@ const { canvas, ctx } = initCanvas({style: "opacity:0"});
 const { canvas: canvasCopy, ctx:ctxCopy } = initCanvas();
 const { canvas: canvasGif, ctx:ctxGif } = initCanvas();
 const img = createEl('img', { src: './img/1.jpg' })
-// 图片帧
-const frames = []
+// 临时lob文件
+const tempFiles = []
+
 img.onload = () => {
   canvas.width = img.width
   canvas.height = img.height
@@ -252,3 +263,14 @@ addBody(canvasGif)
 
 
 
+const base64ToBolb = (base64) => {
+  let arr = base64.split(',')
+  let type = arr[0].match(/:(.*?);/)[1]
+  let bstr = atob(arr[1])
+  let len = bstr.length
+  let u8arr = new Uint8Array(len)
+  while (len--) {
+    u8arr[len] = bstr.charCodeAt(len)
+  }
+  return new Blob([u8arr], { type })      
+}
