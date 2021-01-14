@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-11 17:41:40
- * @LastEditTime: 2021-01-13 14:31:49
+ * @LastEditTime: 2021-01-14 18:01:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \canvas\src\js\index.js
@@ -20,8 +20,8 @@ const addBody = (el) => {
   document.body.appendChild(el)
 }
 // 初始化canvas
-const initCanvas = () => {
-  const canvas = createEl('canvas')
+const initCanvas = (props) => {
+  const canvas = createEl('canvas',props)
   const ctx =  canvas.getContext("2d");
   return {
     canvas,
@@ -58,7 +58,7 @@ const randomEnglish = () => {
   }
 }
 
-// 随机数
+// 随机数正整数
 const randomNum = (num=100) => {
   return Math.ceil(Math.random() * num)
 }
@@ -83,7 +83,6 @@ const drawRound = (ctx, rgba, item, r) => {
 // 开始表演
 const draw = (ctxCopy,data) => {
   // 圆半径，正方形宽高
-  let r = randomNum(5);
   let RAF
   // 17毫秒 执行一次循环 加入事件循环
   const dong = () => {
@@ -92,6 +91,7 @@ const draw = (ctxCopy,data) => {
     ctxCopy.clearRect(0,0,canvasCopy.width,canvasCopy.height);
 
     for (let k = 0; k < data.length; k += 1) {
+      let r = randomNum(2);
       let item = data[k]
       let rgba  = `rgba(${item.r}, ${item.g}, ${item.b}, ${item.a})`; 
       // 延迟发射
@@ -115,11 +115,18 @@ const draw = (ctxCopy,data) => {
       } 
       // 所以粒子都执行完成
       if (isOver >= data.length) {
-        console.log('结束', data, isOver, data.length )
+        console.timeEnd()
+        putColorData(ctxGif, frames[200])
+        let file = new Blob(frames[200], { type: 'png' })     
+        console.log(file)
+        let url = window.URL.createObjectURL(file) 
+        console.log('结束', data, '帧', frames, url)
+
         return cancelAnimationFrame(RAF)
-      }             
+      }          
     }
-   
+    // 获取数据
+    frames.push(getImageData(ctxCopy, canvasCopy))
     RAF = requestAnimationFrame(dong)
     
   }
@@ -153,7 +160,6 @@ const curveFormula = (p0, p1, p2, t) => {
 
 // 创建线程
 // createWork({length, myImage, info, width: canvas.width, height: canvas.height})
-
 const createWork = (data) => {
   const worker = new Worker('http://127.0.0.1:5502/src/js/work.js');
   worker.postMessage(data)
@@ -165,6 +171,11 @@ const createWork = (data) => {
     console.log(event)
   });
 }
+
+// 获取canvas上的图片数据
+const getImageData = (ctx, canvas) => {
+  return ctx.getImageData(0, 0, canvas.width, canvas.height)
+}
 // 获取图片数据
 const getImgData = (ctx, canvas) => {
   let length = canvas.width * canvas.height;
@@ -172,15 +183,15 @@ const getImgData = (ctx, canvas) => {
   let info = []
 
   // 跨几倍像素
-  const multiple = 20
+  const multiple = 5
   // p1 随机数
   const p1Random = 2 || Math.random()
   for (let i = 0; i < length * 4; i += 4 * multiple) {
     // 灰度
-    let myRed = myImage.data[i];
-    let myGreen = myImage.data[i + 1];
-    let myBlue = myImage.data[i + 2];
-    let myGray = parseInt((myRed + myGreen + myBlue) / 3);
+    let r = myImage.data[i];
+    let g = myImage.data[i + 1];
+    let b = myImage.data[i + 2];
+    let gray = parseInt((r + g + b) / 3);
 
     let x = i / 4 % canvas.width
     let y = +( i / 4 / canvas.width).toString().split('.')[0]
@@ -198,36 +209,37 @@ const getImgData = (ctx, canvas) => {
     };
     // 获取xy，色值
     info.push({
-      r:myGray,
-      g:myGray,
-      b:myGray,
-      a:255,
+      r:gray,
+      g:gray,
+      b:gray,
+      a:randomNum(255),
       x,
       y,
       p0,
       p2,
       p1,
       t:0,
-      delay: Math.ceil(3000 / 16.66) * Math.random(),
+      delay: Math.ceil(4000 / 16.66) * Math.random(),
       curDelay: 0,
     })
 
   }
-  console.log(info)
   draw(ctxCopy, info)
-  console.timeEnd()
-
 }
 
-const { canvas, ctx } = initCanvas();
+const { canvas, ctx } = initCanvas({style: "opacity:0"});
 const { canvas: canvasCopy, ctx:ctxCopy } = initCanvas();
-const img = createEl('img', { src: './img/3.jpg' })
-
+const { canvas: canvasGif, ctx:ctxGif } = initCanvas();
+const img = createEl('img', { src: './img/1.jpg' })
+// 图片帧
+const frames = []
 img.onload = () => {
   canvas.width = img.width
   canvas.height = img.height
   canvasCopy.width = img.width
   canvasCopy.height = img.height
+  canvasGif.width = img.width
+  canvasGif.height = img.height
   canvas.style.background = "#000"
   ctx.drawImage(img, 0, 0)
 
@@ -236,3 +248,7 @@ img.onload = () => {
 
 addBody(canvas)
 addBody(canvasCopy)
+addBody(canvasGif)
+
+
+
