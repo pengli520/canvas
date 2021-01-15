@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-11 17:40:30
- * @LastEditTime: 2021-01-15 18:01:18
+ * @LastEditTime: 2021-01-15 18:05:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \canvas\src\index.html
@@ -54,7 +54,7 @@
         <div class="main">
             <video class="video" src="./img/2.mp4" controls autoplay></video>
             <div class="timeline">
-                <div class="timelineArea" :style="marginLeft" @mouseup="mouseup" @mousemove="mousemove" @mousedown="mousedown"></div>
+                <div class="timelineArea" :style="marginLeft" @mouseleave="mouseleave" @mouseup="mouseup" @mousemove="mousemove" @mousedown="mousedown"></div>
             </div>
         </div>
     </div>
@@ -80,16 +80,19 @@
             const mouseup = () => {
                 status.value = false
             }
-            watch((e) => distance.value, (newValue, oldValue) => {
-                if (newValue > oldValue) {
+            const mouseleave = () => {
+                status.value = false
+            }
+            // watch((e) => distance.value, (newValue, oldValue) => {
+            //     if (newValue > oldValue) {
                     
-                } else {
+            //     } else {
                     
-                }
-            })
+            //     }
+            // })
             const mousemove = (e) => {
                 if (status.value) {
-                    marginLeft.value = `margin-left:${distance.value}px`
+                    marginLeft.value = `margin-left:${++distance.value}px`
                 }
             }
             return {
@@ -97,6 +100,7 @@
                 mousedown,
                 mouseup,
                 marginLeft,
+                mouseleave
             }
         }
     }).mount('#app')
