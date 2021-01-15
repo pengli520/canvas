@@ -1,34 +1,14 @@
 /*
  * @Author: your name
  * @Date: 2021-01-11 17:41:40
- * @LastEditTime: 2021-01-14 18:01:52
+ * @LastEditTime: 2021-01-15 11:42:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \canvas\src\js\index.js
  */
 import { GIF } from './generateGif.js'
+import {createEl,addBody,initCanvas} from './dom.js'
 console.time()
-const createEl = (tag, props) => {
-  const el = document.createElement(tag)
-  for (let key in props) {
-    el[key] = props[key]
-  }
-  // img.setAttribute('crossOrigin', 'anonymous')
-  return el
-}
-// 添加到dom
-const addBody = (el) => {
-  document.body.appendChild(el)
-}
-// 初始化canvas
-const initCanvas = (props) => {
-  const canvas = createEl('canvas',props)
-  const ctx =  canvas.getContext("2d");
-  return {
-    canvas,
-    ctx
-  }
-}
 
 // 创建像素
 const creatImageData = (ctx,width=img.width,height=img.height) => {
@@ -88,6 +68,7 @@ const clearUrl = (list) => {
     window.URL.revokeObjectURL(i)
   }
   console.log('清除')
+  console.timeEnd()
 }
 
 // 开始表演
@@ -127,6 +108,7 @@ const draw = (ctxCopy,data) => {
       if (isOver >= data.length) {
         console.timeEnd()
         console.log('结束', data, '帧')
+        console.time()
         GIF(tempFiles,canvasCopy.width, canvasCopy.height, clearUrl)
         return cancelAnimationFrame(RAF)
       }          
@@ -275,3 +257,4 @@ const base64ToBolb = (base64) => {
   }
   return new Blob([u8arr], { type })      
 }
+

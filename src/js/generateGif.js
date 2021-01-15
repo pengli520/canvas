@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-14 17:28:53
- * @LastEditTime: 2021-01-14 17:44:07
+ * @LastEditTime: 2021-01-15 13:57:10
  * @LastEditors: Please set LastEditors
  * @Description: gif生成器
  * @FilePath: \canvas\src\js\generateGif.js
@@ -34,24 +34,6 @@ const GIF = (imgList, w, h, callbacl) => {
     });
 }
 
-
-
-
-const convertBase64UrlToBlob = (a) => {
-    let arr = a.split(',')
-    let mime = arr[0].match(/:(.*?);/)[1]
-    let bstr = atob(arr[1])
-    console.log(bstr)
-    let n = bstr.length
-    let u8arr = new Uint8Array(n)
-    let b = []
-    while (n--) {
-        u8arr[n] = bstr.charCodeAt(n)
-        b.push(bstr.charCodeAt(n))
-    }
-    console.log(b)
-    return new Blob([u8arr], { type: mime })
-}
 
 export {
     GIF
