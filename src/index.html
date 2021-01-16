@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-11 17:40:30
- * @LastEditTime: 2021-01-15 18:05:52
+ * @LastEditTime: 2021-01-16 17:59:24
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \canvas\src\index.html
@@ -12,8 +12,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <script src="./js/gifshot.js" type="module"></script>
-    <script src="./js/index.js" type="module"></script> -->
+    <script src="../dependencies/gifshot.js" type="module"></script>
+    <script src="./js/index.js" type="module"></script>
     <script src="../dependencies/vue.global.js"></script>
     <title>canvas</title>
 </head>
@@ -39,6 +39,7 @@
         position: absolute;
         bottom: 0;
         background: #fff;
+        display: flex;
     }
     .timelineArea{
         width: 50px;
@@ -47,30 +48,41 @@
         opacity: 0.5;
         cursor: pointer;
     }
+    .stretchBlock{
+        width: 20px;
+        height: 100%;
+        background: chartreuse;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+        cursor: w-resize;
+    }
 </style>
 
 <body>
     <div id="app">
         <div class="main">
-            <video class="video" src="./img/2.mp4" controls autoplay></video>
-            <div class="timeline">
-                <div class="timelineArea" :style="marginLeft" @mouseleave="mouseleave" @mouseup="mouseup" @mousemove="mousemove" @mousedown="mousedown"></div>
+            <!-- autoplay 时间抽 -->
+            <div class="timeline" :ref="timelineRef"  @mouseleave="mouseleave" @mousemove="mousemove" @mouseup="mouseup">
+                <!-- 区域 -->
+                <div class="timelineArea" :ref="timelineAreaRef"   @mousedown="mousedown" ></div>
+                <!-- 拉伸 -->
+                <div class="stretchBlock" @mouseleave="stretchMouseleave" @mouseup="stretchMouseup" @mousemove="stretchMousemove" @mousedown="stretchMousedown"></div>
             </div>
         </div>
     </div>
 
 </body>
  <script>
-    const { createApp, ref, watch } = Vue
+    const { createApp, ref, watch, nextTick, onMounted } = Vue
     createApp({
         setup() {
-            let a = ref(112211)
+            // 是否按下,拉伸变形
+            let stretchStatus = ref(false)
+            let stretchX = ref(0)
             // 是否按下
             let status = ref(false)
-            // 距离
+            // 滑块的距离
             let distance = ref(0)
-            // 返回style样式
-            let marginLeft = ref('')
             // x坐标变换情况
             let x = ref(0)
             
@@ -83,66 +95,75 @@
             const mouseleave = () => {
                 status.value = false
             }
-            // watch((e) => distance.value, (newValue, oldValue) => {
-            //     if (newValue > oldValue) {
-                    
-            //     } else {
-                    
-            //     }
-            // })
             const mousemove = (e) => {
                 if (status.value) {
-                    marginLeft.value = `margin-left:${++distance.value}px`
+                    x.value = e.x
+                    timelineArea.style.marginLeft = `${distance.value}px`
+                    video.currentTime = Math.ceil(distance.value / timeline.clientWidth * video.duration)
+                    console.log('当期的秒数:', video.currentTime, '区域时长:',Math.ceil(timelineArea.clientWidth / timeline.clientWidth * video.duration))
+                }
+            }  
+            // 获取滑块宽度
+            const stretchMouseup = () => {
+                stretchStatus.value = false
+            }
+            const stretchMouseleave = () => {
+                stretchStatus.value = false
+            }            
+            const stretchMousedown = () => {
+                stretchStatus.value = true
+            }
+            const stretchMousemove = () => {
+                if (stretchStatus.value) {
+                    let width = timelineArea.clientWidth+=1
+                    timelineArea.style.width = width + 'px'
                 }
             }
+
+            let timeline = '';
+            const timelineRef = el => {
+                timeline = el;
+            }  
+            let timelineArea = '' 
+            const timelineAreaRef = el => {
+                timelineArea = el
+            } 
+            onMounted(() => {
+                // console.log('内部mounted') 
+                // timeline.addEventListener('mousemove', (e) => {
+                //     console.log(e.x, distance.value)
+                // })
+            }) 
+
+            nextTick(() => {
+                console.log(timeline.clientWidth)
+            })   
+            watch((e) => x.value, (newValue, oldValue) => {
+                if (newValue > oldValue 
+                    && distance.value <= (timeline.clientWidth - timelineArea.clientWidth)) {
+                    distance.value++
+                } else {
+                    if (distance.value > 0) {
+                        distance.value--
+                    }
+                }
+            })
+
             return {
                 mousemove,
                 mousedown,
                 mouseup,
-                marginLeft,
-                mouseleave
+                mouseleave,
+                timelineRef,
+                timelineAreaRef,
+                stretchMouseup,
+                stretchMousedown,
+                stretchMousemove,
+                stretchMouseleave,
             }
         }
     }).mount('#app')
-    let video = document.querySelector('.video')
-    let img = document.createElement('img')
-    let canvas = document.createElement('canvas')
-    let ctx = canvas.getContext('2d')
-    // 当前时间
-    let curDuration = 1
-    // 多少时间间隔下载一张图片
-    const time = 40
-    video.onloadeddata = () => {
-        // video.currentTime = curDuration
-        canvas.width = video.clientWidth
-        canvas.height = video.clientHeight
-    }
-    // 当播放位置改变时,进度条
-    video.ontimeupdate = () => {
-        // draw(video.duration)
-        console.log('改变',video.currentTime,curDuration)
-    }
-    const draw = (duration) => {
-        if (curDuration > duration)  {
-            video.pause()
-            return false
-        }			
-        ctx.drawImage(video, 0, 0, video.clientWidth, video.clientHeight) 
-        img.src = canvas.toDataURL('image/jpeg', 1)
-        img.onload = () => {
-            downImg(img.src)
-        }    
-    }	
-    // 下载图片
-    const downImg = (src) => {
-        let a = document.createElement("a")
-        a.href = src
-        let event = new MouseEvent("click"); // 创建一个单击事件
-        a.download = curDuration || "photo"; // 设置图片名称
-        a.dispatchEvent(event); // 触发a的单击事件	
-        curDuration += time
-        video.currentTime = curDuration	        
-    }    
+  
 
 </script>
 </html>

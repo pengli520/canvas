@@ -1,14 +1,16 @@
 /*
  * @Author: your name
  * @Date: 2021-01-11 17:41:40
- * @LastEditTime: 2021-01-15 11:42:00
+ * @LastEditTime: 2021-01-16 17:52:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \canvas\src\js\index.js
  */
-import { GIF } from './generateGif.js'
-import {createEl,addBody,initCanvas} from './dom.js'
+import { GIF } from './gif/generateGif.js'
+import {createEl,addBody,initCanvas} from './dom/dom.js'
+import { initVideo } from './video/videoToImg.js'
 console.time()
+initVideo()
 
 // 创建像素
 const creatImageData = (ctx,width=img.width,height=img.height) => {
@@ -154,7 +156,7 @@ const curveFormula = (p0, p1, p2, t) => {
 // 创建线程
 // createWork({length, myImage, info, width: canvas.width, height: canvas.height})
 const createWork = (data) => {
-  const worker = new Worker('http://127.0.0.1:5502/src/js/work.js');
+  const worker = new Worker('http://127.0.0.1:5502/src/js/worker/work.js');
   worker.postMessage(data)
   worker.onmessage = function (event) {
     console.log(event.data);
@@ -235,9 +237,9 @@ img.onload = () => {
   canvasGif.width = img.width
   canvasGif.height = img.height
   canvas.style.background = "#000"
-  ctx.drawImage(img, 0, 0)
+  // ctx.drawImage(img, 0, 0)
 
-  getImgData(ctx, canvas)
+  // getImgData(ctx, canvas)
 }
 
 addBody(canvas)
@@ -257,4 +259,3 @@ const base64ToBolb = (base64) => {
   }
   return new Blob([u8arr], { type })      
 }
-
