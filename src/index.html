@@ -62,7 +62,7 @@
     <div id="app">
         <div class="main">
             <!-- autoplay 时间抽 -->
-            <div class="timeline" :ref="timelineRef"  @mouseleave="mouseleave" @mousemove="mousemove" @mouseup="mouseup">
+            <div class="timeline" :ref="timelineRef"  @mouseleave="mouseleave" @mousemove="mousemove($event,6545)" @mouseup="mouseup">
                 <!-- 区域 -->
                 <div class="timelineArea" :ref="timelineAreaRef"   @mousedown="mousedown" ></div>
                 <!-- 拉伸 -->
@@ -74,80 +74,79 @@
 </body>
  <script>
     const { createApp, ref, watch, nextTick, onMounted } = Vue
+    const event = () => {
+        // 是否按下
+        let status = ref(false)
+        // 滑块的距离
+        let distance = ref(0)
+        // 滑块坐标变换情况
+        let x = ref(0)
+
+        const mousedown = () => {
+            status.value = true
+        }
+        const mouseup = () => {
+            status.value = false
+        }
+        const mouseleave = () => {
+            status.value = false
+        }
+      
+
+        return {
+            mousedown,
+            mouseup,
+            mouseleave,
+            status,
+            distance,
+            x,
+        }
+    }
+    const dataWatch = (x, distance, timeline, timelineArea) => {
+        watch((e) => x.value, (newValue, oldValue) => {
+            if (newValue > oldValue 
+                && distance.value <= (timeline.clientWidth - timelineArea.clientWidth)) {
+                distance.value++
+            } else {
+                if (distance.value > 0) {
+                    distance.value--
+                }
+            }
+        })
+    }
     createApp({
         setup() {
-            // 是否按下,拉伸变形
-            let stretchStatus = ref(false)
-            let stretchX = ref(0)
-            // 是否按下
-            let status = ref(false)
-            // 滑块的距离
-            let distance = ref(0)
-            // x坐标变换情况
-            let x = ref(0)
-            
-            const mousedown = () => {
-                status.value = true
-            }
-            const mouseup = () => {
-                status.value = false
-            }
-            const mouseleave = () => {
-                status.value = false
-            }
+            const { mousedown, mouseup, mouseleave, status, distance, x } = event()
+            const { mousedown: stretchMousedown, mouseup:stretchMouseup, mouseleave: stretchMouseleave, status:stretchStatus } = event()
+            // 时间轴
+            let timeline = '';
+            // 区域范围
+            let timelineArea = '' 
+            const timelineRef = el => {
+                timeline = el;
+            }  
+            const timelineAreaRef = el => {
+                timelineArea = el
+            }   
+
             const mousemove = (e) => {
                 if (status.value) {
                     x.value = e.x
                     timelineArea.style.marginLeft = `${distance.value}px`
-                    video.currentTime = Math.ceil(distance.value / timeline.clientWidth * video.duration)
-                    console.log('当期的秒数:', video.currentTime, '区域时长:',Math.ceil(timelineArea.clientWidth / timeline.clientWidth * video.duration))
+                    // video.currentTime = Math.ceil(distance.value / timeline.clientWidth * video.duration)
+                    // console.log('当期的秒数:', video.currentTime, '区域时长:',Math.ceil(timelineArea.clientWidth / timeline.clientWidth * video.duration))
                 }
-            }  
-            // 获取滑块宽度
-            const stretchMouseup = () => {
-                stretchStatus.value = false
-            }
-            const stretchMouseleave = () => {
-                stretchStatus.value = false
-            }            
-            const stretchMousedown = () => {
-                stretchStatus.value = true
-            }
+            }   
             const stretchMousemove = () => {
                 if (stretchStatus.value) {
                     let width = timelineArea.clientWidth+=1
                     timelineArea.style.width = width + 'px'
                 }
             }
-
-            let timeline = '';
-            const timelineRef = el => {
-                timeline = el;
-            }  
-            let timelineArea = '' 
-            const timelineAreaRef = el => {
-                timelineArea = el
-            } 
             onMounted(() => {
-                // console.log('内部mounted') 
-                // timeline.addEventListener('mousemove', (e) => {
-                //     console.log(e.x, distance.value)
-                // })
-            }) 
-
-            nextTick(() => {
-                console.log(timeline.clientWidth)
-            })   
-            watch((e) => x.value, (newValue, oldValue) => {
-                if (newValue > oldValue 
-                    && distance.value <= (timeline.clientWidth - timelineArea.clientWidth)) {
-                    distance.value++
-                } else {
-                    if (distance.value > 0) {
-                        distance.value--
-                    }
-                }
+                dataWatch(x, distance, timeline, timelineArea)
             })
+
 
             return {
                 mousemove,
