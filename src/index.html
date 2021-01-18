@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-11 17:40:30
- * @LastEditTime: 2021-01-16 17:59:24
+ * @LastEditTime: 2021-01-18 14:10:41
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \canvas\src\index.html
@@ -14,7 +14,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="../dependencies/gifshot.js" type="module"></script>
     <script src="./js/index.js" type="module"></script>
-    <script src="../dependencies/vue.global.js"></script>
     <title>canvas</title>
 </head>
 <style>
@@ -62,107 +61,16 @@
     <div id="app">
         <div class="main">
             <!-- autoplay 时间抽 -->
-            <div class="timeline" :ref="timelineRef"  @mouseleave="mouseleave" @mousemove="mousemove($event,6545)" @mouseup="mouseup">
+            <div class="timeline" ref="timeline"  @mouseleave="mouseleave" @mousemove="mousemove($event,6545)" @mouseup="mouseup">
                 <!-- 区域 -->
-                <div class="timelineArea" :ref="timelineAreaRef"   @mousedown="mousedown" ></div>
+                <div class="timelineArea" ref="timelineArea"   @mousedown="mousedown" ></div>
                 <!-- 拉伸 -->
                 <div class="stretchBlock" @mouseleave="stretchMouseleave" @mouseup="stretchMouseup" @mousemove="stretchMousemove" @mousedown="stretchMousedown"></div>
             </div>
         </div>
+        <div class="button" @click="generateImg">生成图片</div>
+
     </div>
 
 </body>
- <script>
-    const { createApp, ref, watch, nextTick, onMounted } = Vue
-    const event = () => {
-        // 是否按下
-        let status = ref(false)
-        // 滑块的距离
-        let distance = ref(0)
-        // 滑块坐标变换情况
-        let x = ref(0)
-
-        const mousedown = () => {
-            status.value = true
-        }
-        const mouseup = () => {
-            status.value = false
-        }
-        const mouseleave = () => {
-            status.value = false
-        }
-      
-
-        return {
-            mousedown,
-            mouseup,
-            mouseleave,
-            status,
-            distance,
-            x,
-        }
-    }
-    const dataWatch = (x, distance, timeline, timelineArea) => {
-        watch((e) => x.value, (newValue, oldValue) => {
-            if (newValue > oldValue 
-                && distance.value <= (timeline.clientWidth - timelineArea.clientWidth)) {
-                distance.value++
-            } else {
-                if (distance.value > 0) {
-                    distance.value--
-                }
-            }
-        })
-    }
-    createApp({
-        setup() {
-            const { mousedown, mouseup, mouseleave, status, distance, x } = event()
-            const { mousedown: stretchMousedown, mouseup:stretchMouseup, mouseleave: stretchMouseleave, status:stretchStatus } = event()
-            // 时间轴
-            let timeline = '';
-            // 区域范围
-            let timelineArea = '' 
-            const timelineRef = el => {
-                timeline = el;
-            }  
-            const timelineAreaRef = el => {
-                timelineArea = el
-            }   
-
-            const mousemove = (e) => {
-                if (status.value) {
-                    x.value = e.x
-                    timelineArea.style.marginLeft = `${distance.value}px`
-                    // video.currentTime = Math.ceil(distance.value / timeline.clientWidth * video.duration)
-                    // console.log('当期的秒数:', video.currentTime, '区域时长:',Math.ceil(timelineArea.clientWidth / timeline.clientWidth * video.duration))
-                }
-            }   
-            const stretchMousemove = () => {
-                if (stretchStatus.value) {
-                    let width = timelineArea.clientWidth+=1
-                    timelineArea.style.width = width + 'px'
-                }
-            }
-            onMounted(() => {
-                dataWatch(x, distance, timeline, timelineArea)
-            })
-
-
-            return {
-                mousemove,
-                mousedown,
-                mouseup,
-                mouseleave,
-                timelineRef,
-                timelineAreaRef,
-                stretchMouseup,
-                stretchMousedown,
-                stretchMousemove,
-                stretchMouseleave,
-            }
-        }
-    }).mount('#app')
-  
-
-</script>
 </html>

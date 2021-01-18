@@ -1,16 +1,16 @@
 /*
  * @Author: your name
  * @Date: 2021-01-11 17:41:40
- * @LastEditTime: 2021-01-16 17:52:00
+ * @LastEditTime: 2021-01-18 11:44:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \canvas\src\js\index.js
  */
 import { GIF } from './gif/generateGif.js'
 import {createEl,addBody,initCanvas} from './dom/dom.js'
-import { initVideo } from './video/videoToImg.js'
+import ("./vue/index.js");
 console.time()
-initVideo()
+
 
 // 创建像素
 const creatImageData = (ctx,width=img.width,height=img.height) => {
