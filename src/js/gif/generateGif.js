@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-14 17:28:53
- * @LastEditTime: 2021-01-19 14:02:06
+ * @LastEditTime: 2021-01-19 17:12:14
  * @LastEditors: Please set LastEditors
  * @Description: gif生成器
  * @FilePath: \canvas\src\js\generateGif.js
@@ -14,22 +14,24 @@
   * @param {*} h 高
   * @param {*} callbacl 回调函数
   * @param {*} interval 多少时间间隔换一张图
+  * @param {*} frameDuration 每帧停留的时间（10 = 1s）
+  * @param {*} numFrames 注意：每100毫秒捕获一次一个视频以及现有图像
   */
-const GIF = (imgList, w, h, callbacl, interval = 0.5) => {
+const GIF = (imgList, w, h, callbacl, interval = 0.1) => {
     return gifshot.createGIF({
         gifWidth: w,
         gifHeight: h,
         images: imgList,
         interval,
-        numFrames: 1,
-        frameDuration: 1,
+        numFrames: 10,
+        frameDuration: 2,
         fontWeight: 'normal',
         fontSize: '16px',
         fontFamily: 'sans-serif',
         fontColor: '#ffffff',
         textAlign: 'center',
         textBaseline: 'bottom',
-        sampleInterval: 100,
+        sampleInterval: 10,
         numWorkers: 2
     }, function (obj) {
         if (!obj.error) {
@@ -37,7 +39,8 @@ const GIF = (imgList, w, h, callbacl, interval = 0.5) => {
                 animatedImage = document.createElement('img');
             animatedImage.src = image;
             document.body.appendChild(animatedImage);
-            callbacl(imgList)
+            callbacl ? callbacl() : false
+            clearUrl(imgList)
         }
     });
 }

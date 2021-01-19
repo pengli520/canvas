@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-15 09:07:40
- * @LastEditTime: 2021-01-18 15:45:11
+ * @LastEditTime: 2021-01-19 16:55:04
  * @LastEditors: Please set LastEditors
  * @Description: 视频处理成图片
  * @FilePath: \canvas\src\js\videoToImg.js
@@ -41,10 +41,10 @@ const drawImg = (src, video) => {
 }
 
 // 图片处理
-const transformImg = (src, video, timeInterval = 1) => {
+const transformImg = (src, video, timeInterval = 0.1) => {
    base64.push(src)
-   if (video.areaTime) {
-      video.areaTime--
+   if (video.areaTime > 0) {
+      video.areaTime-=timeInterval
       video.currentTime+= timeInterval
    } else {
       video.status = false
@@ -68,7 +68,7 @@ const base64 = {
 
 
 // 初始化视频
-const initVideo = (src,currentTime = 10) => {
+const initVideo = (src,currentTime = 1) => {
    const video = createEl('video', { src, class: 'video', controls: true, })
 
    // 视频数据加载完成

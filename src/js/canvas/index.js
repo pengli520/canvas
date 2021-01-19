@@ -1,12 +1,12 @@
 /*
  * @Author: your name
  * @Date: 2021-01-19 14:20:04
- * @LastEditTime: 2021-01-19 15:41:21
+ * @LastEditTime: 2021-01-19 17:11:42
  * @LastEditors: Please set LastEditors
  * @Description: canvas相关操作
  * @FilePath: \canvas\src\js\canvas\index.js
  */
-import { base64ToBolb, GIF, clearUrl  } from '../gif/generateGif.js'
+import { base64ToBolb, GIF, clearUrl , createURL } from '../gif/generateGif.js'
 // 画二阶曲线路径
 const curvePath = (ctx, p0, p1, p2, color = 'blue') => {
     ctx.beginPath()
@@ -103,7 +103,7 @@ const getImgData = (ctx, canvas) => {
     let info = []
 
     // 跨几倍像素
-    const multiple = 20
+    const multiple = 8
     // p1 随机数
     const p1Random = 2 || Math.random()
     for (let i = 0; i < length * 4; i += 4 * multiple) {
@@ -129,9 +129,9 @@ const getImgData = (ctx, canvas) => {
         };
         // 获取xy，色值
         info.push({
-            r: gray,
-            g: gray,
-            b: gray,
+            r,
+            g,
+            b,
             a: randomNum(255),
             x,
             y,
@@ -186,15 +186,14 @@ const drawAnimation = (ctx,data,canvasCopy) => {
         if (isOver >= data.length) {
           console.timeEnd()
           console.log('结束', data, '帧')
-          GIF(tempFiles,canvasCopy.width, canvasCopy.height, clearUrl)
+          GIF(tempFiles,canvasCopy.width, canvasCopy.height)
           return cancelAnimationFrame(RAF)
         }          
       }
       // 获取数据
       const base64 =  canvasCopy.toDataURL('image/jpg')
-      const file =  base64ToBolb(base64)
-      let src = window.URL.createObjectURL(file) 
-      tempFiles.push(src)
+      const url =  createURL(base64ToBolb(base64))
+      tempFiles.push(url)
   
       RAF = requestAnimationFrame(dong)
       
@@ -202,8 +201,13 @@ const drawAnimation = (ctx,data,canvasCopy) => {
     dong()
   }
 
+// 单个无动画
 const singleton = (ctx, info, canvas) => {
-    
+    for (let item of info) {
+        let rgba  = `rgba(${item.r}, ${item.g}, ${item.b}, ${item.a})`; 
+        drawRound(ctx, rgba, item, randomNum(2)) 
+    }
+    return createURL(base64ToBolb(canvas.toDataURL('image/jpg')))
 }
 
 export {
