@@ -7,6 +7,9 @@
  * @FilePath: \canvas\src\js\canvas\index.js
  */
 import { base64ToBolb, GIF, clearUrl , createURL } from '../gif/generateGif.js'
+// 跨几倍像素
+const multiple = 4
+const r = 1
 // 画二阶曲线路径
 const curvePath = (ctx, p0, p1, p2, color = 'blue') => {
     ctx.beginPath()
@@ -102,11 +105,10 @@ const getImgData = (ctx, canvas) => {
     const myImage = ctx.getImageData(0, 0, canvas.width, canvas.height)
     let info = []
 
-    // 跨几倍像素
-    const multiple = 8
     // p1 随机数
     const p1Random = 2 || Math.random()
     for (let i = 0; i < length * 4; i += 4 * multiple) {
+
         // 灰度
         let r = myImage.data[i];
         let g = myImage.data[i + 1];
@@ -115,6 +117,11 @@ const getImgData = (ctx, canvas) => {
 
         let x = i / 4 % canvas.width
         let y = +(i / 4 / canvas.width).toString().split('.')[0]
+        if (y%4) {
+            r = 0
+            g = 0
+            b = 0
+        }
         let p0 = {
             x: canvas.width / 2,
             y: canvas.height,
@@ -205,7 +212,7 @@ const drawAnimation = (ctx,data,canvasCopy) => {
 const singleton = (ctx, info, canvas) => {
     for (let item of info) {
         let rgba  = `rgba(${item.r}, ${item.g}, ${item.b}, ${item.a})`; 
-        drawRound(ctx, rgba, item, randomNum(2)) 
+        drawRound(ctx, rgba, item, r) 
     }
     return createURL(base64ToBolb(canvas.toDataURL('image/jpg')))
 }

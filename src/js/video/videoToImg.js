@@ -44,7 +44,7 @@ const drawImg = (src, video) => {
 const transformImg = (src, video, timeInterval = 0.1) => {
    base64.push(src)
    if (video.areaTime > 0) {
-      video.areaTime-=timeInterval
+      video.areaTime= +(video.areaTime - timeInterval).toFixed(2)
       video.currentTime+= timeInterval
    } else {
       video.status = false

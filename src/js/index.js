@@ -43,7 +43,7 @@ createApp({
             }
         }
         const init = () => {
-            video = initVideo('./img/3.mp4')
+            video = initVideo('./img/1.mp4')
             addBody(video, '.main')
             console.log(video)
             dataWatch(x, distance, timeline.value, timelineArea.value)
