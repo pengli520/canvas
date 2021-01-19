@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-18 09:19:04
- * @LastEditTime: 2021-01-18 15:46:11
+ * @LastEditTime: 2021-01-19 13:59:34
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \canvas\src\js\vue\index.js
@@ -11,7 +11,7 @@ import { createApp, ref, watch, nextTick, onMounted, computed } from "../../../d
 import { addBody} from '../dom/dom.js'
 import { dataWatch, mouseEvent, clearPreventDefault } from "./mouseEvent.js";
 import { initVideo, drawVideoToImg } from '../video/videoToImg.js'
-
+import { GIF, base64ToBolb, createURL } from "../gif/generateGif.js";
 createApp({
     setup() {
         const { mousedown, mouseup, mouseleave, status, distance, x } = mouseEvent()
@@ -52,11 +52,17 @@ createApp({
             video.areaTime = areaTime.value
             video.status = true
             drawVideoToImg(video, (base64ImgArr) => {
-                console.dir(video)
-                console.log(base64ImgArr)
-            })
+                let urls = []
+                for (let base of base64ImgArr) {
+                    urls.push(createURL(base64ToBolb(base)))
+                }
+                GIF(urls, video.clientWidth, video.clientHeight, () => {
+                    console.log('完成')
+                })
 
+            })
         }
+        
         onMounted(() => {
             init()
         })
