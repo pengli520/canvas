@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-18 09:19:04
- * @LastEditTime: 2021-01-19 16:42:56
+ * @LastEditTime: 2021-01-22 14:21:41
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \canvas\src\js\vue\index.js
@@ -13,6 +13,7 @@ import { dataWatch, mouseEvent, clearPreventDefault } from "./vue/mouseEvent.js"
 import { initVideo, drawVideoToImg } from './video/videoToImg.js'
 import { GIF, base64ToBolb, createURL } from "./gif/generateGif.js";
 import { transformImg } from './gif/index.js'
+import { initBodyPix } from "./body-pix/index.js";
 createApp({
     setup() {
         const { mousedown, mouseup, mouseleave, status, distance, x } = mouseEvent()
@@ -43,11 +44,14 @@ createApp({
             }
         }
         const init = () => {
-            video = initVideo('./img/1.mp4')
+            video = initVideo('./img/2.mp4')
             addBody(video, '.main')
             console.log(video)
             dataWatch(x, distance, timeline.value, timelineArea.value)
             clearPreventDefault(document, 'mousemove')
+            // 图片人体分析
+            // initBodyPix()
+
         }
         const generateImg = () => {
             video.areaTime = areaTime.value

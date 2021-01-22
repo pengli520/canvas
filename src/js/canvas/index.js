@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-19 14:20:04
- * @LastEditTime: 2021-01-19 17:11:42
+ * @LastEditTime: 2021-01-22 10:23:32
  * @LastEditors: Please set LastEditors
  * @Description: canvas相关操作
  * @FilePath: \canvas\src\js\canvas\index.js
@@ -103,6 +103,7 @@ const curveFormula = (p0, p1, p2, t) => {
 const getImgData = (ctx, canvas) => {
     let length = canvas.width * canvas.height;
     const myImage = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    console.log(myImage)
     let info = []
 
     // p1 随机数
