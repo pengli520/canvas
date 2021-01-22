@@ -8,14 +8,30 @@
  */
 
 import { addBody, createEl} from '../dom/dom.js'
+import { canvasToBase64ToBolbUrl } from '../canvas/index.js';
 
-const initBodyPix = async () => {
-    const net = await bodyPix.load({
+// 初始化
+const bodyPixLoad =  () => {
+    return bodyPix.load({
         architecture: 'ResNet50',
         outputStride: 16,
         quantBytes: 2
     });
-    const img = createEl('img', {src: './img/7.jpg'})
+
+}
+
+/**
+ * 
+ * @param {*} net bodyPix实列
+ * @param {*} src 图片src
+ * @param {*} backFn 回调函数
+ */
+const initBodyPix = async (net, src, backFn) => {
+    if (!src) {
+        throw 'img src no empty'
+    }
+
+    const img = createEl('img', {src})
     img.onload = async () => {
         const segmentation = await net.segmentPerson(img);
         const coloredPartImage = bodyPix.toMask(segmentation);
@@ -25,14 +41,14 @@ const initBodyPix = async () => {
     
         const canvas = createEl('canvas')
     
-        addBody(canvas)
-        // console.log(segmentation, coloredPartImage);
         bodyPix.drawMask(canvas, img, coloredPartImage, opacity, maskBlurAmount,flipHorizontal);
-        console.timeEnd()
+        let url = canvasToBase64ToBolbUrl(canvas)
+        backFn(url)
     }
 }
 
 
 export {
+    bodyPixLoad,
     initBodyPix
 }

@@ -8,12 +8,12 @@
  */
 
 import { createApp, ref, watch, nextTick, onMounted, computed } from "../../dependencies/vue.esm-browser.js";
-import { addBody} from './dom/dom.js'
+import { addBody, createEl} from './dom/dom.js'
 import { dataWatch, mouseEvent, clearPreventDefault } from "./vue/mouseEvent.js";
 import { initVideo, drawVideoToImg } from './video/videoToImg.js'
 import { GIF, base64ToBolb, createURL } from "./gif/generateGif.js";
 import { transformImg } from './gif/index.js'
-import { initBodyPix } from "./body-pix/index.js";
+import { initBodyPix, bodyPixLoad } from "./body-pix/index.js";
 createApp({
     setup() {
         const { mousedown, mouseup, mouseleave, status, distance, x } = mouseEvent()
@@ -25,7 +25,7 @@ createApp({
         let timelineArea = ref(null);
         // 区域时长
         let areaTime = computed(() => {
-            return Math.ceil(timelineArea.value.clientWidth / timeline.value.clientWidth * video.duration)
+            return +(timelineArea.value.clientWidth / timeline.value.clientWidth * video.duration).toFixed(2)
         })
 
         const mousemove = (e) => {
@@ -44,34 +44,46 @@ createApp({
             }
         }
         const init = () => {
-            video = initVideo('./img/2.mp4')
+            video = initVideo('./img/4.mp4')
             addBody(video, '.main')
             console.log(video)
             dataWatch(x, distance, timeline.value, timelineArea.value)
             clearPreventDefault(document, 'mousemove')
-            // 图片人体分析
-            // initBodyPix()
-
         }
-        const generateImg = () => {
+        const generateImg = async () => {
+            console.time()
             video.areaTime = areaTime.value
             video.status = true
+            const net = await bodyPixLoad()
+            console.log(net, '---')
             drawVideoToImg(video, (base64ImgArr) => {
-                let imgUrls = []
+                const imgUrls = []
+                const backImgUrl = []
                 for (let base of base64ImgArr) {
-                    imgUrls.push(createURL(base64ToBolb(base)))
-                }
-                transformImg(imgUrls, (urls) => {
-                    console.log(urls, '---')
-                    GIF(urls, video.clientWidth, video.clientHeight, () => {
-                        console.log('完成')
+                    let url = createURL(base64ToBolb(base))
+                    imgUrls.push(url)
+                    // 图片人体分析
+                    initBodyPix(net, url, (backUrl) => {
+                        backImgUrl.push(backUrl)
+                        // addBody(createEl('img',{src:backUrl}))
+                        if (backImgUrl.length === imgUrls.length) {
+                            console.log(backImgUrl, '完成人体分析')
+                            transformImg(backImgUrl, (urls) => {
+                                GIF(urls, video.clientWidth, video.clientHeight, () => {
+                                    console.log('完成')
+                                    console.timeEnd()
+                                })
+                            })
+                        }
                     })
-                })
+                }
+                
+
 
 
             })
         }
-        
+
         onMounted(() => {
             init()
         })

@@ -68,7 +68,7 @@ const base64 = {
 
 
 // 初始化视频
-const initVideo = (src,currentTime = 1) => {
+const initVideo = (src,currentTime = 0) => {
    const video = createEl('video', { src, class: 'video', controls: true, })
 
    // 视频数据加载完成

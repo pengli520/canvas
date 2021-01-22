@@ -8,7 +8,8 @@
  */
 import { base64ToBolb, GIF, clearUrl , createURL } from '../gif/generateGif.js'
 // 跨几倍像素
-const multiple = 4
+const multiple = 10
+const multipleY = 20
 const r = 1
 // 画二阶曲线路径
 const curvePath = (ctx, p0, p1, p2, color = 'blue') => {
@@ -103,7 +104,6 @@ const curveFormula = (p0, p1, p2, t) => {
 const getImgData = (ctx, canvas) => {
     let length = canvas.width * canvas.height;
     const myImage = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    console.log(myImage)
     let info = []
 
     // p1 随机数
@@ -118,10 +118,11 @@ const getImgData = (ctx, canvas) => {
 
         let x = i / 4 % canvas.width
         let y = +(i / 4 / canvas.width).toString().split('.')[0]
-        if (y%4) {
+        if (y % multipleY) {
             r = 0
             g = 0
             b = 0
+            gray = 0
         }
         let p0 = {
             x: canvas.width / 2,
@@ -137,9 +138,9 @@ const getImgData = (ctx, canvas) => {
         };
         // 获取xy，色值
         info.push({
-            r,
-            g,
-            b,
+            r:gray,
+            g:gray,
+            b:gray,
             a: randomNum(255),
             x,
             y,
@@ -214,8 +215,14 @@ const singleton = (ctx, info, canvas) => {
     for (let item of info) {
         let rgba  = `rgba(${item.r}, ${item.g}, ${item.b}, ${item.a})`; 
         drawRound(ctx, rgba, item, r) 
+        // writeText(ctx, rgba, item, r) 
     }
     return createURL(base64ToBolb(canvas.toDataURL('image/jpg')))
+}
+
+// 生成base64->bolo
+const canvasToBase64ToBolbUrl = (canvas, encoderOptions = 0.92) => {
+    return createURL(base64ToBolb(canvas.toDataURL('image/jpg', encoderOptions)))
 }
 
 export {
@@ -224,5 +231,6 @@ export {
     drawRound,
     curveFormula,
     drawAnimation,
-    singleton
+    singleton,
+    canvasToBase64ToBolbUrl
 }
