@@ -12,6 +12,7 @@
 
 .video {
     width: 60%;
+    opacity: 0.1;
 }
 .timeline {
     width: 100%;

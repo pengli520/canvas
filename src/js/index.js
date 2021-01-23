@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-18 09:19:04
- * @LastEditTime: 2021-01-22 14:21:41
+ * @LastEditTime: 2021-01-23 14:22:36
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \canvas\src\js\vue\index.js
@@ -59,16 +59,27 @@ createApp({
             drawVideoToImg(video, (base64ImgArr) => {
                 const imgUrls = []
                 const backImgUrl = []
+                const img = createEl('img',{src: ''})
+                addBody(img)
+                
                 for (let base of base64ImgArr) {
                     let url = createURL(base64ToBolb(base))
                     imgUrls.push(url)
                     // 图片人体分析
                     initBodyPix(net, url, (backUrl) => {
                         backImgUrl.push(backUrl)
-                        // addBody(createEl('img',{src:backUrl}))
                         if (backImgUrl.length === imgUrls.length) {
                             console.log(backImgUrl, '完成人体分析')
                             transformImg(backImgUrl, (urls) => {
+                                // let i = 0
+                                // const idTime = setInterval(() => {
+                                //     console.log(urls[i])
+                                //     img.src = urls[i]
+                                //     i++
+                                //     if (i === urls.length) {
+                                //         i = 0
+                                //     }
+                                // }, 100);
                                 GIF(urls, video.clientWidth, video.clientHeight, () => {
                                     console.log('完成')
                                     console.timeEnd()

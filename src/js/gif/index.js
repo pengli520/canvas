@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-11 17:41:40
- * @LastEditTime: 2021-01-19 17:11:54
+ * @LastEditTime: 2021-01-23 11:54:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \canvas\src\js\index.js
@@ -31,7 +31,6 @@ const transformImg =  (imgUrls, backFn) => {
       let url = singleton(ctx, info, canvas)
       urls.push(url)
       curIndex++
-      // addBody(createEl('img', { src:url }))
       if (curIndex === imgUrls.length) {
         backFn(urls)
       } 

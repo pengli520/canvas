@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-19 14:20:04
- * @LastEditTime: 2021-01-22 10:23:32
+ * @LastEditTime: 2021-01-23 14:20:08
  * @LastEditors: Please set LastEditors
  * @Description: canvas相关操作
  * @FilePath: \canvas\src\js\canvas\index.js
@@ -10,7 +10,9 @@ import { base64ToBolb, GIF, clearUrl , createURL } from '../gif/generateGif.js'
 // 跨几倍像素
 const multiple = 10
 const multipleY = 20
-const r = 1
+const r = 8
+// 是否开启灰度
+const isGray = false
 // 画二阶曲线路径
 const curvePath = (ctx, p0, p1, p2, color = 'blue') => {
     ctx.beginPath()
@@ -51,9 +53,9 @@ const drawRound = (ctx, rgba, item, r) => {
 }
 
 // 随机生成英文字母
-const randomEnglish = () => {
+const randomEnglish = (r) => {
     let english = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
-    let num = Math.ceil(Math.random() * 25)
+    let num = Math.ceil(Math.random() * r * 2 )
     return {
         text: english[num],
         num
@@ -62,10 +64,11 @@ const randomEnglish = () => {
 
 // 写文本
 const writeText = (ctx, rgba, item, size) => {
-    const { text, num } = randomEnglish()
+    const { text, num } = randomEnglish(size)
     // ctx.rotate( num*(Math.PI / 180));
+    ctx.textBaseline = 'top'
     ctx.fillStyle = rgba
-    ctx.font = `${num / 2}px Arial`;
+    ctx.font = `${num}px Arial`;
     ctx.fillText(text, item.x, item.y);
 }
 
@@ -114,15 +117,24 @@ const getImgData = (ctx, canvas) => {
         let r = myImage.data[i];
         let g = myImage.data[i + 1];
         let b = myImage.data[i + 2];
+        // 透明度
+        let a = randomNum(255)
         let gray = parseInt((r + g + b) / 3);
+
 
         let x = i / 4 % canvas.width
         let y = +(i / 4 / canvas.width).toString().split('.')[0]
+        // y轴间距
         if (y % multipleY) {
             r = 0
             g = 0
             b = 0
+            a = 0
             gray = 0
+        }
+        // 如果是黑色的色值透明度就设置为0
+        if (!r && !g && !b) {
+            a = 0 
         }
         let p0 = {
             x: canvas.width / 2,
@@ -138,10 +150,10 @@ const getImgData = (ctx, canvas) => {
         };
         // 获取xy，色值
         info.push({
-            r:gray,
-            g:gray,
-            b:gray,
-            a: randomNum(255),
+            r: isGray ? gray : r,
+            g: isGray ? gray : g,
+            b: isGray ? gray : b,
+            a,
             x,
             y,
             p0,
@@ -214,7 +226,7 @@ const drawAnimation = (ctx,data,canvasCopy) => {
 const singleton = (ctx, info, canvas) => {
     for (let item of info) {
         let rgba  = `rgba(${item.r}, ${item.g}, ${item.b}, ${item.a})`; 
-        drawRound(ctx, rgba, item, r) 
+        drawRound(ctx, rgba, item, randomNum(5)) 
         // writeText(ctx, rgba, item, r) 
     }
     return createURL(base64ToBolb(canvas.toDataURL('image/jpg')))
