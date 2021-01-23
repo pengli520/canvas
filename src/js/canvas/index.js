@@ -1,16 +1,16 @@
 /*
  * @Author: your name
  * @Date: 2021-01-19 14:20:04
- * @LastEditTime: 2021-01-23 14:20:08
+ * @LastEditTime: 2021-01-23 16:51:49
  * @LastEditors: Please set LastEditors
  * @Description: canvas相关操作
  * @FilePath: \canvas\src\js\canvas\index.js
  */
 import { base64ToBolb, GIF, clearUrl , createURL } from '../gif/generateGif.js'
 // 跨几倍像素
-const multiple = 10
+const multipleX = 10
 const multipleY = 20
-const r = 8
+const r = 3
 // 是否开启灰度
 const isGray = false
 // 画二阶曲线路径
@@ -111,7 +111,7 @@ const getImgData = (ctx, canvas) => {
 
     // p1 随机数
     const p1Random = 2 || Math.random()
-    for (let i = 0; i < length * 4; i += 4 * multiple) {
+    for (let i = 0; i < length * 4; i += 4 * randomNum(multipleX)) {
 
         // 灰度
         let r = myImage.data[i];
@@ -226,7 +226,7 @@ const drawAnimation = (ctx,data,canvasCopy) => {
 const singleton = (ctx, info, canvas) => {
     for (let item of info) {
         let rgba  = `rgba(${item.r}, ${item.g}, ${item.b}, ${item.a})`; 
-        drawRound(ctx, rgba, item, randomNum(5)) 
+        drawRound(ctx, rgba, item, r) 
         // writeText(ctx, rgba, item, r) 
     }
     return createURL(base64ToBolb(canvas.toDataURL('image/jpg')))
